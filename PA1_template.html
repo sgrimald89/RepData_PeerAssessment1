@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<meta name="generator" content="pandoc" />
+
+
+
+<title></title>
+
+<script src="PA1_template_files/jquery-1.11.0/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link href="PA1_template_files/bootstrap-2.3.2/css/bootstrap.min.css" rel="stylesheet" />
+<link href="PA1_template_files/bootstrap-2.3.2/css/bootstrap-responsive.min.css" rel="stylesheet" />
+<script src="PA1_template_files/bootstrap-2.3.2/js/bootstrap.min.js"></script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<link rel="stylesheet"
+      href="PA1_template_files/highlight/default.css"
+      type="text/css" />
+<script src="PA1_template_files/highlight/highlight.js"></script>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
+<div class="container-fluid main-container">
+
+
+
+
+<div id="reproducible-research-peer-assesment-1" class="section level1">
+<h1>Reproducible Research Peer Assesment 1</h1>
+<div id="loading-and-preprocessing-the-data" class="section level2">
+<h2>Loading and preprocessing the data</h2>
+<div id="show-any-code-that-is-needed-to" class="section level3">
+<h3>Show any code that is needed to:</h3>
+<div id="load-the-data-i.e.read.csv" class="section level5">
+<h5>Load the data (i.e. read.csv())</h5>
+<pre class="r"><code>library(ggplot2)
+if (!file.exists(&quot;activity.csv&quot;)) {
+        download.file(&quot;https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip&quot;, destfile = &quot;activity.zip&quot;, method=&quot;curl&quot;)
+        unzip(&quot;activity.zip&quot;)
+}
+a=read.csv(&quot;activity.csv&quot;)</code></pre>
+</div>
+</div>
+</div>
+<div id="what-is-mean-total-number-of-steps-taken-per-day" class="section level2">
+<h2>What is mean total number of steps taken per day?</h2>
+<div id="for-this-part-of-the-assignment-you-can-ignore-the-missing-values-in-the-dataset." class="section level5">
+<h5>For this part of the assignment, you can ignore the missing values in the dataset.</h5>
+</div>
+<div id="make-a-histogram-of-the-total-number-of-steps-taken-each-day" class="section level5">
+<h5>Make a histogram of the total number of steps taken each day</h5>
+<pre class="r"><code>a$date=as.Date(a$date)
+b=aggregate(a$steps,by=list(a$date),FUN=sum)
+hist(b$x,breaks=20,labels=unique(b$x[order(b$x)]),main=&quot;Histogram of steps by day&quot;,xlab=&quot;Steps&quot;)</code></pre>
+<p><img src="PA1_template_files/figure-html/unnamed-chunk-2.png" alt="plot of chunk unnamed-chunk-2" /></p>
+</div>
+<div id="calculate-and-report-the-mean-and-median-total-number-of-steps-taken-per-day" class="section level5">
+<h5>Calculate and report the mean and median total number of steps taken per day</h5>
+<p>Mean:</p>
+<pre class="r"><code>mean(b$x,na.rm=TRUE)</code></pre>
+<pre><code>## [1] 10766</code></pre>
+<p>Median:</p>
+<pre class="r"><code>median(b$x,na.rm=TRUE)</code></pre>
+<pre><code>## [1] 10765</code></pre>
+</div>
+</div>
+<div id="what-is-the-average-daily-activity-pattern" class="section level2">
+<h2>What is the average daily activity pattern?</h2>
+<div id="make-a-time-series-plot-i.e.type-l-of-the-5-minute-interval-x-axis-and-the-average-number-of-steps-taken-averaged-across-all-days-y-axis" class="section level6">
+<h6>Make a time series plot (i.e. type = “l”) of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)</h6>
+<pre class="r"><code>c=aggregate(a$steps,by=list(a$interval),FUN=mean,na.rm=TRUE)
+plot(c$Group.1,c$x,type=&quot;l&quot;,ylab=&quot;Average Steps in Interval&quot;, xlab=&quot;Interval&quot;)</code></pre>
+<p><img src="PA1_template_files/figure-html/unnamed-chunk-5.png" alt="plot of chunk unnamed-chunk-5" /></p>
+</div>
+<div id="which-5-minute-interval-on-average-across-all-the-days-in-the-dataset-contains-the-maximum-number-of-steps" class="section level5">
+<h5>Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?</h5>
+<p>Maximum Steps:</p>
+<pre class="r"><code>max(c$x)</code></pre>
+<pre><code>## [1] 206.2</code></pre>
+<p>Interval with Maximum Steps:</p>
+<pre class="r"><code>c$Group.1[which.max(c$x)]</code></pre>
+<pre><code>## [1] 835</code></pre>
+</div>
+</div>
+<div id="imputing-missing-values" class="section level2">
+<h2>Imputing missing values</h2>
+<div id="note-that-there-are-a-number-of-daysintervals-where-there-are-missing-values-coded-as-na.-the-presence-of-missing-days-may-introduce-bias-into-some-calculations-or-summaries-of-the-data." class="section level5">
+<h5>Note that there are a number of days/intervals where there are missing values (coded as NA). The presence of missing days may introduce bias into some calculations or summaries of the data.</h5>
+</div>
+<div id="calculate-and-report-the-total-number-of-missing-values-in-the-dataset-i.e.the-total-number-of-rows-with-nas" class="section level5">
+<h5>Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)</h5>
+<pre class="r"><code>sum(is.na(a))</code></pre>
+<pre><code>## [1] 2304</code></pre>
+</div>
+<div id="devise-a-strategy-for-filling-in-all-of-the-missing-values-in-the-dataset.-the-strategy-does-not-need-to-be-sophisticated.-for-example-you-could-use-the-meanmedian-for-that-day-or-the-mean-for-that-5-minute-interval-etc." class="section level5">
+<h5>Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.</h5>
+<p>To impute my missing values, I use the mean for the given 5-minue interval.</p>
+</div>
+<div id="create-a-new-dataset-that-is-equal-to-the-original-dataset-but-with-the-missing-data-filled-in." class="section level5">
+<h5>Create a new dataset that is equal to the original dataset but with the missing data filled in.</h5>
+<pre class="r"><code>l=a
+for (row in 1:length(l$steps)){
+        if(is.na(l[row,1])){
+                l[row,1]=c[c$Group.1==l[row,3],2]
+        }
+}</code></pre>
+</div>
+<div id="make-a-histogram-of-the-total-number-of-steps-taken-each-day-and-calculate-and-report-the-mean-and-median-total-number-of-steps-taken-per-day.-do-these-values-differ-from-the-estimates-from-the-first-part-of-the-assignment-what-is-the-impact-of-imputing-missing-data-on-the-estimates-of-the-total-daily-number-of-steps" class="section level5">
+<h5>Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?</h5>
+<pre class="r"><code>m=aggregate(l$steps,by=list(l$date),FUN=sum)
+hist(m$x,breaks=20,labels=unique(m$x[order(m$x)]),main=&quot;Histogram of steps by day&quot;,xlab=&quot;Steps&quot;)</code></pre>
+<p><img src="PA1_template_files/figure-html/unnamed-chunk-10.png" alt="plot of chunk unnamed-chunk-10" /></p>
+<p>Mean:</p>
+<pre class="r"><code>mean(m$x)</code></pre>
+<pre><code>## [1] 10766</code></pre>
+<p>Median:</p>
+<pre class="r"><code>median(m$x)</code></pre>
+<pre><code>## [1] 10766</code></pre>
+<p>As we can see, the mean did not change, but as we would expect, the median grew closer to the mean. In fact, in this case, the mean is equal to the median.</p>
+</div>
+</div>
+<div id="are-there-differences-in-activity-patterns-between-weekdays-and-weekends" class="section level2">
+<h2>Are there differences in activity patterns between weekdays and weekends?</h2>
+<div id="for-this-part-the-weekdays-function-may-be-of-some-help-here.-use-the-dataset-with-the-filled-in-missing-values-for-this-part." class="section level5">
+<h5>For this part the weekdays() function may be of some help here. Use the dataset with the filled-in missing values for this part.</h5>
+</div>
+<div id="create-a-new-factor-variable-in-the-dataset-with-two-levels-weekday-and-weekend-indicating-whether-a-given-date-is-a-weekday-or-weekend-day." class="section level5">
+<h5>Create a new factor variable in the dataset with two levels – “weekday” and “weekend” indicating whether a given date is a weekday or weekend day.</h5>
+<pre class="r"><code>l$dayOfWeek=weekdays(l$date)
+l$type=ifelse(l$dayOfWeek==&quot;Saturday&quot;|l$dayOfWeek==&quot;Sunday&quot;,&quot;Weekend&quot;,&quot;Weekday&quot;)
+l$type=as.factor(l$type)
+l$interval=as.factor(l$interval)</code></pre>
+</div>
+<div id="make-a-panel-plot-containing-a-time-series-plot-i.e.type-l-of-the-5-minute-interval-x-axis-and-the-average-number-of-steps-taken-averaged-across-all-weekday-days-or-weekend-days-y-axis.-the-plot-should-look-something-like-the-following-which-was-creating-using-simulated-data" class="section level5">
+<h5>Make a panel plot containing a time series plot (i.e. type = “l”) of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). The plot should look something like the following, which was creating using simulated data:</h5>
+<pre class="r"><code>r=aggregate(l$steps,list(as.factor(l$interval),as.factor(l$type)),mean)
+p &lt;- ggplot(r, aes(x = as.integer(Group.1), y=x)) + geom_line()
+p + facet_grid(Group.2~.)+xlab(&quot;Interval&quot;)+ylab(&quot;Average Steps in Interval&quot;)</code></pre>
+<p><img src="PA1_template_files/figure-html/unnamed-chunk-14.png" alt="plot of chunk unnamed-chunk-14" /></p>
+</div>
+</div>
+</div>
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+$(document).ready(function () {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+});
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with --self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
